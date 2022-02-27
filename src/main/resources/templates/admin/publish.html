@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="admin/_fragments :: head(~{::title})">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"><!--屏幕适配-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"><!--导入semantic-->
+  <link rel="stylesheet" href="../../static/css/me.css">
+  <link rel="stylesheet" href="../../static/lib/cropperjs/cropper.css" th:href="@{/lib/cropperjs/cropper.css}"><!-- 截图 -->
+
+  <title>博客新增</title>
+</head>
+<body>
+<!--导航-->
+<nav th:replace="admin/_fragments::menu(1)" class="ui inverted attached segment m-padded-tb-mini">
+  <div class="ui container">
+    <div class="ui inverted secondary stackable menu">
+      <h2 class="ui teal header item">管理后台</h2>
+      <a href="../index.html" class="m-item item m-mobile-hide"><i class="middle home icon"></i>博客</a>
+      <a href="../index.html" class="m-item item m-mobile-hide"><i class="middle idea icon"></i>分类</a>
+      <a href="../index.html" class="m-item item m-mobile-hide"><i class="middle tags icon"></i>标签</a>
+      <div class="right m-item m-mobile-hide menu">
+        <div class="ui dropdown item">
+          <div class="text">
+            <img class="ui avatar image" src="../../static/images/wechat.jpg">
+            Jenny Hess
+          </div>
+          <i class="dropdown icon"></i>
+          <div class="menu">
+            <a href="#" class="item">注销</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="#" class="ui menu toggle icon black button m-top-right m-mobile-show"><i class="sidebar icon"></i></a>
+</nav>
+
+<!--二级导航-->
+<div class="ui attached pointing menu">
+  <div class="ui container">
+    <div class="ui right menu">
+      <a href="#" class="teal active item">发布</a>
+      <a href="#" class="item">列表</a>
+    </div>
+  </div>
+</div>
+<!--中间内容-->
+<div class="m-container m-padded-tb-large m-padded-tb-big">
+  <div class="ui container" style="width: 950px">
+    <form id="blog-form" action="#" th:object="${blog}" th:action="@{/admin/publish}" class="ui form" method="post">
+      <input type="hidden" name="published" >
+      <input type="hidden" name="id" th:value="*{id}">
+      <div class="required field " >
+        <div class="ui left labeled input">
+          <div class="ui selection compact teal basic dropdown label">
+            <input type="hidden" value="原创" name="flag" th:value="*{flag}">
+            <i class="dropdown icon"></i>
+            <div class="text">原创</div>
+            <div class="menu">
+              <div class="item" data-value="原创" >原创</div>
+              <div class="item" data-value="转载">转载</div>
+              <div class="item" data-value="翻译">翻译</div>
+            </div>
+          </div>
+          <input type="text" placeholder="标题" name="title" th:value="*{title}">
+        </div>
+      </div>
+      <div class="required field" >
+        <div id="div1">
+        </div>
+      </div>
+      <textarea name="content" id="content" th:utext="*{content}"  style="width:100%; height:200px ;display: none"></textarea>
+
+      <div class="required field">
+        <textarea name="description" maxlength="200" th:text="*{description}" placeholder="博客描述。。。推荐不超过30字"></textarea>
+      </div>
+
+      <div class="two fields">
+      <div class="required field">
+        <div class="ui left labeled action input">
+          <label  class="ui compact teal basic label">分类</label>
+          <div class="ui fluid selection dropdown">
+            <input type="hidden" name="type.id" th:value="*{type}!=null ? *{type.id}">
+            <i class="dropdown icon"></i>
+            <div class="default text">分类</div>
+            <div class="menu">
+              <div th:each="type : ${types}" class="item" data-value="1" th:data-value="${type.id}" th:text="${type.name}">错误日志</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="field">
+          <div class="ui left labeled action input">
+            <label  class="ui compact teal basic label">标签</label>
+            <div class="ui fluid multiple selection dropdown" >
+              <input type="hidden" name="tagIds" th:value="*{tagIds}">
+              <i class="dropdown icon"></i>
+              <div class="default text">标签</div>
+              <div class="menu">
+                <div th:each="tag : ${tags}" class="item" data-value="1" th:data-value="${tag.id}" th:text="${tag.name}">错误日志</div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+      <div class="required field">
+        <div class="ui left labeled basic input">
+          <label class="ui teal basic label">首图</label>
+          <input type="text" id="firstPicture" name="firstPicture" th:value="*{firstPicture}" placeholder="首图引用地址">
+        </div>
+
+      </div>
+
+
+      <div class="inline fields">
+        <div class="field">
+          <div class="ui checkbox">
+            <input type="checkbox" id="recommend" name="recommend" th:checked="*{recommend}" class="hidden">
+            <label for="recommend">推荐</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui checkbox">
+            <input type="checkbox" id="shareStatement" name="shareStatement" th:checked="*{shareStatement}" class="hidden">
+            <label for="shareStatement">转载申明</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui checkbox">
+            <input type="checkbox" id="appreciation" name="appreciation" th:checked="*{appreciation}" class="hidden">
+            <label for="appreciation">赞赏</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui checkbox">
+            <input type="checkbox" id="commentable" name="commentable" th:checked="*{commentabled}" class="hidden">
+            <label for="commentable">评论</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui error message"></div>
+
+      <div class="ui right aligned container">
+        <button class="ui button" type="button" onclick="window.history.go(-1)">返回</button>
+        <button type="button" id="save-btn" class="ui secondary button">保存</button>
+        <button type="button" id="publish-btn" class="ui teal button">发布</button>
+      </div>
+    </form>
+    <!-- Wrap the image or canvas element with a block element (container) -->
+    <br>
+    <br>
+    <br>
+    <button id="crop button1" onclick="cropRegionDisplay(1)" class="ui fluid gray rounded button">点击以显示首图编辑器</button>
+    <button id="crop button2" onclick="cropRegionDisplay(0)" style="display: none" class="ui fluid gray rounded button">点击以隐藏首图编辑器</button>
+    <div id="crop region" style="display: none">
+      <h1 class="ui teal header">首图编辑器</h1>
+      <div class="ui top attached">
+        <div class="ui middle aligned eleven column grid">
+          <div class="seven wide column">
+            <div class="before" style="overflow: hidden; width: 320px;height: 180px"></div>
+          </div>
+          <div class="left aligned four wide column">
+            <div class="ui top attached segment">
+              <div class="ui middle aligned two column grid">
+                <div class="column">
+                  <button class="ui teal rounded button" onclick="upload()">裁剪</button>
+                </div>
+                <div class="right aligned column">
+                  <button class="ui gray rounded button">取消</button>
+                </div>
+              </div>
+            </div>
+              <input id="cropper-image" type="file" class="ui fluid brown rounded button">
+              <button class="ui fluid gray rounded button" onclick="uploadFirstPicture()">上传文件</button>
+            </div>
+        </div>
+      </div>
+      <img id="cropper" style="display: block; max-width: 100%;height: 300px" src="../../static/images/firstPicture/raw/default.png" th:src="@{/images/firstPicture/raw/default.png}">
+    </div>
+  </div>
+</div>
+
+
+<!--底部-->
+<footer th:replace="admin/_fragments :: footer" class="ui inverted vertical segment m-padded-tb-massive">
+  <div class="ui center aligned container">
+    <div class="ui inverted divided stackable grid">
+      <div class="three wide column">
+        <div class="ui inverted link list">
+          <div class="item"><img src="../../static/images/wechat.jpg" class="ui rounded image" alt=""
+                                 style="width: 110px"></div>
+        </div>
+      </div>
+      <div class="three wide column">
+        <h4 class="ui inverted header  m-text-spaced m-opacity-mini">最新博客</h4>
+        <div class="ui inverted link list">
+          <a href="#" class="item">用户故事</a>
+          <a href="#" class="item">用户故事</a>
+          <a href="#" class="item">用户故事</a>
+        </div>
+      </div>
+      <div class="three wide column">
+        <h4 class="ui inverted header  m-text-spaced m-opacity-mini">联系我们</h4>
+        <div class="ui inverted link list">
+          <a href="#" class="item">Email: 1790824962@qq.ocm</a>
+          <a href="#" class="item">QQ: 1790824962</a>
+        </div>
+      </div>
+      <div class="seven wide column">
+        <h4 class="ui inverted header  m-text-spaced m-opacity-mini">BLOG</h4>
+        <p class="m-text-thin m-text-spaced m-opacity-mini">hello world!</p>
+      </div>
+    </div>
+    <div class="ui inverted section divider"></div>
+    <p class="m-text-thin m-text-spaced m-opacity-mini">hello world!</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script><!--cdn方式引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script><!--导入semantic-->
+
+<script src="../../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script><!--cdn方式引入jquery-->
+<script src="../../static/js/semantic.min.js" th:src="@{/js/semantic.min.js}"></script><!--导入semantic-->
+<script src="../../static/lib/cropperjs/cropper.min.js" th:src="@{/lib/cropperjs/cropper.min.js}"></script>
+
+<!--编辑器-->
+<script src="https://cdn.jsdelivr.net/npm/wangeditor@latest/dist/wangEditor.min.js" th:src="@{/lib/wangEditor/wangEditor.min.js}"></script>
+<script type="text/javascript">
+  const E = window.wangEditor
+  const editor = new E('#div1')
+  // 或者 const editor = new E( document.getElementById('div1') )
+  editor.config.zIndex = 0
+  const $text1 = $('#content')
+  editor.config.onchange = function (html) {
+    // 第二步，监控变化，同步更新到 textarea
+    $text1.val(html)
+  }
+  // 配置 server 接口地址
+  editor.config.uploadImgServer = '/admin/uploadBlogImage'
+  editor.config.uploadImgMaxLength = 1
+  editor.create()
+  editor.txt.html($text1.text())
+</script>
+
+
+<script>
+
+  $('#multi-select')
+          .dropdown()
+  ;
+
+
+  $('.menu.toggle').click(function () {
+    $('.m-item').toggleClass("m-mobile-hide")
+  });
+
+  $('#payButton').popup({
+    popup: $('.payQ.popup'),
+    on: 'click',
+    position: 'bottom center'
+  });
+
+  //保存按钮,发布按钮
+  $('#save-btn').click(function (){
+    $('[name= "published"]').val(false);
+    $('#blog-form').submit();
+  })
+  $('#publish-btn').click(function (){
+    $('[name= "published"]').val(true);
+    $('#blog-form').submit();
+  })
+
+  $('.ui.dropdown').dropdown({on:'hover'})
+  ;
+
+//非空校验
+  $('.ui.form').form({
+    fields: {
+      title: {
+        identifier: 'title',
+        rules: [{
+          type: 'empty',
+          prompt: '标题: 请输入博客标题'
+        }]
+      },
+      content: {
+        identifier: 'content',
+        rules: [{
+          type: 'empty',
+          prompt: '标题: 请输入博客内容'
+        }]
+      },
+      type: {
+        identifier: 'typeId',
+        rules: [{
+          type: 'empty',
+          prompt: '标题: 请输入博客分类'
+        }]
+      },
+      firstPicture: {
+      identifier: 'firstPicture',
+    rules: [{
+     type: 'empty',
+     prompt: '标题: 请输入博客首图'
+   }]
+ },
+      description: {
+        identifier: 'description',
+        rules: [{
+          type: 'empty',
+          prompt: '标题: 请输入博客描述'
+        }]
+      }
+    }
+          }
+  );
+
+  //显示控制
+function cropRegionDisplay(flag){
+  if (flag==1){
+    document.getElementById("crop region").style.display="inline";
+    document.getElementById("crop button1").style.display="none";
+    document.getElementById("crop button2").style.display="inline";
+  }else {
+    document.getElementById("crop region").style.display="none";
+    document.getElementById("crop button1").style.display="inline";
+    document.getElementById("crop button2").style.display="none";
+  }
+}
+
+
+  // 将base64转换为blob
+  function dataURLtoFile(dataURI, type) {
+    let binary = atob(dataURI.split(',')[1]);
+    let array = [];
+    for (let i = 0; i < binary.length; i++) {
+      array.push(binary.charCodeAt(i));
+    }
+    return new Blob([new Uint8Array(array)], {type: type});
+  }
+  function upload() {
+    // 图片地址
+    var date=new Date();
+    var imgBase = cropper.getCroppedCanvas().toDataURL('image/jpeg');
+    let blob = dataURLtoFile(imgBase, 'image/jpeg');
+    var formData = new FormData();
+    let fileOfBlob = new File([blob], date.getTime()+ '.jpg'); // 重命名了
+    formData.append("faceInfo", fileOfBlob);
+    $.ajax({
+      url: "/admin/uploadCroppedImage", //用于文件上传的服务器端请求地址
+      dataType: 'json',
+      type: 'POST',
+      async: false,
+      data: formData,
+      processData: false, // 使数据不做处理
+      contentType: false, // 不要设置Content-Type请求头
+      success: function (r) { //服务器成功响应处理函数
+        if (r.state) {
+          var data = r.url;
+          document.getElementById("firstPicture").value=data;
+        } else {
+          alert("上传失败请重试")
+        }
+      }
+    });
+  }
+
+  function uploadFirstPicture() {
+    var formData = new FormData();
+    formData.append("faceInfo",document.getElementById("cropper-image").files[0]);
+    $.ajax({
+      url: "/admin/uploadRawImage", //用于文件上传的服务器端请求地址
+      dataType: 'json',
+      type: 'POST',
+      async: false,
+      data: formData,
+      processData: false, // 使数据不做处理
+      contentType: false, // 不要设置Content-Type请求头
+      success: function (r) { //服务器成功响应处理函数
+        if (r.state) {
+          var data = r.url;
+          document.getElementById("cropper").src=data;
+
+
+          const image = document.getElementById('cropper');
+          window.cropper = new Cropper(image, {
+            //裁剪框的比例
+            aspectRatio: 16 / 9,
+            viewMode: 1,
+            preview: ".before",
+            dragMode: "move"
+          });
+
+        } else {
+          alert("上传失败请重试")
+        }
+      }
+    });
+  }
+</script>
+
+
+</body>
+</html>
